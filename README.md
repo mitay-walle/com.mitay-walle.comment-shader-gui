@@ -76,11 +76,10 @@ _Strength("Distortion Strength", Range(0,1)) = 0.2
 
 | Tag                   | Description                                                                 |
 |------------------------|-----------------------------------------------------------------------------|
-| `[Vector2]`            | Splits a `Vector` into **X/Y float fields**.                               |
+| `[Vector2]`            | Hide ZW components of a `Vector`. Show only **X/Y float fields**.                               |
 | `[Vector2:X,Y]`        | Same as above, but with **custom labels** for each field.                  |
-| `[LogarithmicRange]`   | Makes `Range` slider respond **logarithmically** instead of linearly.       |
 | `[MiniTexture]`        | Draws a compact texture field (mini thumbnail).                            |
-| `[EnableIf:Property]`  | Shows the property only if another toggle property is `true`.               |
+| `[EnableIf:Property]`  | Disable the property only if another float/int property is less than 0.5.               |
 | `[HelpBox]`            | Shows a help message above the property.                                   |
 
 ---
@@ -99,8 +98,10 @@ public abstract class PropertyProcessor
 
 ### Steps to add:
 1. Create a new class extending `PropertyProcessor`.  
-2. Implement the `Draw` method.  
-3. Register the processor by inheriting `PropertyProcessor` (it is auto-discovered via `TypeCache`).  
+2. inplement `CanDraw` to filter your attribute by `fieldType`
+3. In `ParseComment` use Regex to find your attribute, and fill `info.cuatomData` with parsed values
+4. Implement the `Draw` method.  
+5. 
 
 ---
 
