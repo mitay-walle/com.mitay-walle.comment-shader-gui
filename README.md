@@ -3,16 +3,29 @@
 Custom **ShaderGUI** for Unity that extends the standard material inspector.  
 It solves core limitations of Unity’s built-in system:
 
+## Problem
+
 - `MaterialProperryDrawer` attributes cannot take extra parameters.  
 - You cannot apply multiple custom  attributes to the same property
 - You cannot combine some built-in attributes with custom `MaterialPropertyDrawer`.  
 
-With this system, attributes, tooltips, and help messages are parsed directly from **comments above shader properties**.  
+## Solution
+
+Parse shader text comments to attributes and values, then use ShaderGUI to draw it
+
+
+## 🚀 Summary
+
+- Tooltips, HelpBoxes, and multiple attributes are written in **shader comments**.  
+- No need for multiple `MaterialPropertyDrawer` hacks.  
+- Easy to add **custom processors** for any specialized UI control.  
+- Makes Unity’s material inspector **far more flexible and maintainable**.
 
 <img width="853" height="1075" alt="{757AC5C4-E4B0-4A1C-B527-09DC089DA357}" src="https://github.com/user-attachments/assets/d6c7173f-3854-4bc5-a950-9140586c38a8" />
 
 
 ---
+
 
 ## ✨ Features
 
@@ -101,7 +114,6 @@ public abstract class PropertyProcessor
 2. inplement `CanDraw` to filter your attribute by `fieldType`. if you write a `Decorator` return `false`
 3. In `ParseComment` use Regex to find your attribute, and fill `info.cuatomData` with parsed values
 4. Implement the `Draw` method.  
-5. 
 
 ---
 
@@ -166,10 +178,3 @@ _Smoothness("Smoothness", Range(0,1)) = 0.5
 ```
 
 ---
-
-## 🚀 Summary
-
-- Tooltips, HelpBoxes, and multiple attributes are written in **shader comments**.  
-- No need for multiple `MaterialPropertyDrawer` hacks.  
-- Easy to add **custom processors** for any specialized UI control.  
-- Makes Unity’s material inspector **far more flexible and maintainable**.
