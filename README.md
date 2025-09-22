@@ -4,7 +4,7 @@ Custom **ShaderGUI** for Unity that extends the standard material inspector.
 It solves core limitations of Unity’s built-in system:
 
 - `MaterialProperryDrawer` attributes cannot take extra parameters.  
-- You cannot apply multiple attributes to the same property
+- You cannot apply multiple custom  attributes to the same property
 - You cannot combine some built-in attributes with custom `MaterialPropertyDrawer`.  
 
 With this system, attributes, tooltips, and help messages are parsed directly from **comments above shader properties**.  
