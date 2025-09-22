@@ -115,13 +115,12 @@ private class StepSliderProcessor : PropertyProcessor
 
     public override bool CanProcess(MaterialProperty prop, PropertyInfo info, List<string> unityAttributes)
     {
-        // Works only on float or range properties
         return prop.type == MaterialProperty.PropType.Float || prop.type == MaterialProperty.PropType.Range;
     }
 
     public override void Draw(MaterialEditor editor, MaterialProperty prop, PropertyInfo info, GUIContent content)
     {
-        float step = info.stepSize > 0 ? info.stepSize : 0.1f;
+        float step = info.customData.TryGetValue("stepSize", out var val) ? (float)val : 0.1f;
 
         EditorGUI.BeginChangeCheck();
         float newVal = EditorGUILayout.Slider(content, prop.floatValue, prop.rangeLimits.x, prop.rangeLimits.y);
@@ -137,9 +136,8 @@ private class StepSliderProcessor : PropertyProcessor
         if (match.Success)
         {
             if (float.TryParse(match.Groups[1].Value, out float step))
-                info.stepSize = step;
+                info.customData["stepSize"] = step;
 
-            // Remove the tag so only tooltip/helpbox text remains
             comment = regex.Replace(comment, "");
         }
         return comment;
