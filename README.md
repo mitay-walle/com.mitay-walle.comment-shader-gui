@@ -1,4 +1,4 @@
-# UnifiedShaderGUI
+# CommentShaderGUI
 
 Custom **ShaderGUI** for Unity that extends the standard material inspector.  
 It solves core limitations of Unity’s built-in system:
