@@ -107,34 +107,43 @@ public abstract class PropertyProcessor
 ### Example: Step Slider
 
 ```csharp
-public class StepSliderProcessor : PropertyProcessor
+private class StepSliderProcessor : PropertyProcessor
 {
-    private float step;
+    private static Regex regex = new Regex(@"\[StepSlider\(([\d\.]+)\)\]");
 
-    public StepSliderProcessor(float step) => this.step = step;
+    public override int ProcessingOrder => 10;
+
+    public override bool CanProcess(MaterialProperty prop, PropertyInfo info, List<string> unityAttributes)
+    {
+        // Works only on float or range properties
+        return prop.type == MaterialProperty.PropType.Float || prop.type == MaterialProperty.PropType.Range;
+    }
 
     public override void Draw(MaterialEditor editor, MaterialProperty prop, PropertyInfo info, GUIContent content)
     {
-        EditorGUI.BeginChangeCheck();
-        float newVal = EditorGUILayout.Slider(content, prop.floatValue, 0, 1);
+        float step = info.stepSize > 0 ? info.stepSize : 0.1f;
 
+        EditorGUI.BeginChangeCheck();
+        float newVal = EditorGUILayout.Slider(content, prop.floatValue, prop.rangeLimits.x, prop.rangeLimits.y);
         newVal = Mathf.Round(newVal / step) * step;
 
         if (EditorGUI.EndChangeCheck())
             prop.floatValue = newVal;
     }
-}
-```
 
-Parser detection example:
+    public override string ParseComment(string comment, ref PropertyInfo info, ref string helpBox)
+    {
+        var match = regex.Match(comment);
+        if (match.Success)
+        {
+            if (float.TryParse(match.Groups[1].Value, out float step))
+                info.stepSize = step;
 
-```csharp
-if (tag.StartsWith("StepSlider"))
-{
-    float step = 0.1f;
-    var match = Regex.Match(tag, @"StepSlider\(([\d\.]+)\)");
-    if (match.Success) step = float.Parse(match.Groups[1].Value);
-    processor = new StepSliderProcessor(step);
+            // Remove the tag so only tooltip/helpbox text remains
+            comment = regex.Replace(comment, "");
+        }
+        return comment;
+    }
 }
 ```
 
