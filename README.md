@@ -98,7 +98,7 @@ public abstract class PropertyProcessor
 
 ### Steps to add:
 1. Create a new class extending `PropertyProcessor`.  
-2. inplement `CanDraw` to filter your attribute by `fieldType`
+2. inplement `CanDraw` to filter your attribute by `fieldType`. if you write a `Decorator` return `false`
 3. In `ParseComment` use Regex to find your attribute, and fill `info.cuatomData` with parsed values
 4. Implement the `Draw` method.  
 5. 
