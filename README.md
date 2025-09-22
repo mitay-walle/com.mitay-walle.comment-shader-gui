@@ -107,42 +107,54 @@ public abstract class PropertyProcessor
 ### Example: Step Slider
 
 ```csharp
-private class StepSliderProcessor : PropertyProcessor
-{
-    private static Regex regex = new Regex(@"\[StepSlider\(([\d\.]+)\)\]");
+	private class StepSliderProcessor : PropertyProcessor
+	{
+		private static Regex regex = new Regex(@"\[StepSlider\(\s*([-+]?\d*\.?\d+)\s*\)\]");
 
-    public override int ProcessingOrder => 10;
+		public override int ProcessingOrder => 10;
 
-    public override bool CanProcess(MaterialProperty prop, PropertyInfo info, List<string> unityAttributes)
-    {
-        return prop.type == MaterialProperty.PropType.Float || prop.type == MaterialProperty.PropType.Range;
-    }
+		public override bool CanProcess(MaterialProperty prop, PropertyInfo info, List<string> unityAttributes)
+		{
+			return (prop.type == MaterialProperty.PropType.Float || prop.type == MaterialProperty.PropType.Range) && info.customData.ContainsKey("stepSize");
+		}
 
-    public override void Draw(MaterialEditor editor, MaterialProperty prop, PropertyInfo info, GUIContent content)
-    {
-        float step = info.customData.TryGetValue("stepSize", out var val) ? (float)val : 0.1f;
+		public override void Draw(MaterialEditor editor, MaterialProperty prop, PropertyInfo info, GUIContent content)
+		{
+			if (info.customData.TryGetValue("stepSize", out var val))
+			{
+				float step = (float)val;
+				EditorGUI.BeginChangeCheck();
+				float newVal = EditorGUILayout.Slider(content, prop.floatValue, prop.rangeLimits.x, prop.rangeLimits.y);
+				newVal = Mathf.Round(newVal / step) * step;
 
-        EditorGUI.BeginChangeCheck();
-        float newVal = EditorGUILayout.Slider(content, prop.floatValue, prop.rangeLimits.x, prop.rangeLimits.y);
-        newVal = Mathf.Round(newVal / step) * step;
+				if (EditorGUI.EndChangeCheck())
+					prop.floatValue = newVal;
+			}
+			else
+			{
+				Debug.LogError("TryGetValue(stepSize) failed");
+			}
+		}
 
-        if (EditorGUI.EndChangeCheck())
-            prop.floatValue = newVal;
-    }
+		public override string ParseComment(string comment, ref PropertyInfo info, ref string helpBox)
+		{
+			var match = regex.Match(comment);
+			if (match.Success)
+			{
+				if (float.TryParse(match.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out float step))
+				{
+					info.customData["stepSize"] = step;
+					comment = regex.Replace(comment, "");
+				}
+				else
+				{
+					Debug.LogError("stepSize failed parse");
+				}
+			}
 
-    public override string ParseComment(string comment, ref PropertyInfo info, ref string helpBox)
-    {
-        var match = regex.Match(comment);
-        if (match.Success)
-        {
-            if (float.TryParse(match.Groups[1].Value, out float step))
-                info.customData["stepSize"] = step;
-
-            comment = regex.Replace(comment, "");
-        }
-        return comment;
-    }
-}
+			return comment;
+		}
+	}
 ```
 
 Shader usage:
